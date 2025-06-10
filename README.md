@@ -283,4 +283,4 @@ AimbotTab:CreateToggle({
     end,
 })
 
--- FIM DO SCRIPT
+-- FIM DO SCRIPT adicionar opções de sound

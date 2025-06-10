@@ -150,3 +150,137 @@ MainTab:CreateButton({
         end
     end,
 })
+
+-- =========================
+-- NOVAS OPÇÕES: AIMBOT
+-- =========================
+
+local AimbotTab = Window:CreateTab("Aimbot", 4483362458)
+
+-- Variáveis do Aimbot
+local aimbotEnabled = false
+local aimbotFOV = 100
+local aimbotKey = Enum.UserInputType.MouseButton2 -- Botão direito do mouse por padrão
+local aimbotFOVCircle = nil
+
+-- Função para desenhar o círculo do FOV
+local function desenharFOV()
+    if aimbotFOVCircle then
+        aimbotFOVCircle:Remove()
+    end
+    local Drawing = Drawing or getgenv().Drawing
+    if Drawing then
+        aimbotFOVCircle = Drawing.new("Circle")
+        aimbotFOVCircle.Color = Color3.fromRGB(255, 0, 0)
+        aimbotFOVCircle.Thickness = 2
+        aimbotFOVCircle.Radius = aimbotFOV
+        aimbotFOVCircle.Filled = false
+        aimbotFOVCircle.Visible = aimbotEnabled
+        aimbotFOVCircle.Position = Vector2.new(workspace.CurrentCamera.ViewportSize.X/2, workspace.CurrentCamera.ViewportSize.Y/2)
+    end
+end
+
+-- Função para encontrar o player mais próximo do mouse dentro do FOV
+local function getClosestPlayer()
+    local players = game.Players:GetPlayers()
+    local localPlayer = game.Players.LocalPlayer
+    local camera = workspace.CurrentCamera
+    local mousePos = camera:ViewportPointToRay(camera.ViewportSize.X/2, camera.ViewportSize.Y/2).Origin
+
+    local closestPlayer = nil
+    local shortestDistance = aimbotFOV
+
+    for _, player in pairs(players) do
+        if player ~= localPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Team ~= localPlayer.Team then
+            local pos, onScreen = camera:WorldToViewportPoint(player.Character.HumanoidRootPart.Position)
+            if onScreen then
+                local dist = (Vector2.new(pos.X, pos.Y) - Vector2.new(camera.ViewportSize.X/2, camera.ViewportSize.Y/2)).Magnitude
+                if dist < shortestDistance then
+                    shortestDistance = dist
+                    closestPlayer = player
+                end
+            end
+        end
+    end
+    return closestPlayer
+end
+
+-- Função principal do Aimbot
+local function ativarAimbot()
+    if not aimbotEnabled then return end
+    local UserInputService = game:GetService("UserInputService")
+    UserInputService.InputBegan:Connect(function(input)
+        if input.UserInputType == aimbotKey and aimbotEnabled then
+            local closest = getClosestPlayer()
+            if closest and closest.Character and closest.Character:FindFirstChild("HumanoidRootPart") then
+                workspace.CurrentCamera.CFrame = CFrame.new(
+                    workspace.CurrentCamera.CFrame.Position,
+                    closest.Character.HumanoidRootPart.Position
+                )
+            end
+        end
+    end)
+end
+
+-- Toggle para ativar/desativar Aimbot
+AimbotTab:CreateToggle({
+    Name = "Ativar Aimbot",
+    CurrentValue = false,
+    Callback = function(Value)
+        aimbotEnabled = Value
+        if aimbotFOVCircle then
+            aimbotFOVCircle.Visible = Value
+        end
+        if Value then
+            desenharFOV()
+            ativarAimbot()
+        elseif aimbotFOVCircle then
+            aimbotFOVCircle.Visible = false
+        end
+    end,
+})
+
+-- Slider para alterar o FOV do Aimbot
+AimbotTab:CreateSlider({
+    Name = "FOV do Aimbot",
+    Range = {30, 300},
+    Increment = 1,
+    CurrentValue = aimbotFOV,
+    Callback = function(Value)
+        aimbotFOV = Value
+        desenharFOV()
+    end,
+})
+
+-- Dropdown para trocar a tecla de ativação
+AimbotTab:CreateDropdown({
+    Name = "Tecla de ativação",
+    Options = {"MouseButton2", "MouseButton1", "E", "Q", "LeftShift"},
+    CurrentOption = "MouseButton2",
+    Callback = function(Value)
+        if Value == "MouseButton2" then
+            aimbotKey = Enum.UserInputType.MouseButton2
+        elseif Value == "MouseButton1" then
+            aimbotKey = Enum.UserInputType.MouseButton1
+        elseif Value == "E" then
+            aimbotKey = Enum.KeyCode.E
+        elseif Value == "Q" then
+            aimbotKey = Enum.KeyCode.Q
+        elseif Value == "LeftShift" then
+            aimbotKey = Enum.KeyCode.LeftShift
+        end
+    end,
+})
+
+-- Checkbox para alternar desenho do círculo FOV
+AimbotTab:CreateToggle({
+    Name = "Mostrar círculo do FOV",
+    CurrentValue = true,
+    Callback = function(Value)
+        if aimbotFOVCircle then
+            aimbotFOVCircle.Visible = Value
+        end
+    end,
+})
+
+-- FIM DO SCRIPT

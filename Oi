@@ -1,0 +1,57 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+local w = Rayfield:CreateWindow({
+    Name = "Rayfield Hub",
+    LoadingTitle = "Rayfield Hub",
+    LoadingSubtitle = "by SeuNome",
+    ConfigurationSaving = {Enabled=true,FolderName="RayfieldHubConfig",FileName="Config"}
+})
+local t = w:CreateTab("Principal",4483362458)
+local function btnArma(nome)
+    t:CreateButton({
+        Name = "Teleportar para o 2º filho da " .. nome,
+        Callback = function()
+            local p = game.Players.LocalPlayer
+            local c = p.Character or p.CharacterAdded:Wait()
+            local g = workspace:FindFirstChild("Prison_ITEMS") and workspace.Prison_ITEMS:FindFirstChild("giver") and workspace.Prison_ITEMS.giver:FindFirstChild(nome)
+            if g then
+                local ch=g:GetChildren()
+                if #ch>=2 and c and c:FindFirstChild("HumanoidRootPart") and ch[2]:IsA("BasePart") then
+                    c.HumanoidRootPart.CFrame = ch[2].CFrame + Vector3.new(0,2,0)
+                    Rayfield:Notify({Title="Rayfield Hub",Content="Teleportado!",Duration=4})
+                else Rayfield:Notify({Title="Rayfield Hub",Content="Segundo filho inválido.",Duration=4}) end
+            else Rayfield:Notify({Title="Rayfield Hub",Content="Arma não encontrada.",Duration=4}) end
+        end,
+    })
+end
+btnArma("AK-47")
+btnArma("M9")
+btnArma("Remington 870")
+
+t:CreateButton({
+    Name = "Teleportar para o 5º filho do Crude Knife",
+    Callback = function()
+        local p = game.Players.LocalPlayer
+        local c = p.Character or p.CharacterAdded:Wait()
+        local obj = workspace:FindFirstChild("Prison_ITEMS") and workspace.Prison_ITEMS:FindFirstChild("single") and workspace.Prison_ITEMS.single:FindFirstChild("Crude Knife")
+        if obj then
+            local ch=obj:GetChildren()
+            if #ch>=5 and c and c:FindFirstChild("HumanoidRootPart") and ch[5]:IsA("BasePart") then
+                c.HumanoidRootPart.CFrame = ch[5].CFrame + Vector3.new(0,2,0)
+                Rayfield:Notify({Title="Rayfield Hub",Content="Teleportado!",Duration=4})
+            else Rayfield:Notify({Title="Rayfield Hub",Content="5º filho inválido.",Duration=4}) end
+        else Rayfield:Notify({Title="Rayfield Hub",Content="Crude Knife não encontrado.",Duration=4}) end
+    end,
+})
+
+t:CreateButton({
+    Name = "Teleportar para o Hammer (prisonerOnly, ITEMPICKUP)",
+    Callback = function()
+        local p = game.Players.LocalPlayer
+        local c = p.Character or p.CharacterAdded:Wait()
+        local h = workspace:FindFirstChild("Prison_ITEMS") and workspace.Prison_ITEMS:FindFirstChild("single") and workspace.Prison_ITEMS.single:FindFirstChild("Hammer")
+        if h and h:FindFirstChild("prisonerOnly") and h:FindFirstChild("ITEMPICKUP") and c and c:FindFirstChild("HumanoidRootPart") and h.ITEMPICKUP:IsA("BasePart") then
+            c.HumanoidRootPart.CFrame = h.ITEMPICKUP.CFrame + Vector3.new(0,2,0)
+            Rayfield:Notify({Title="Rayfield Hub",Content="Teleportado!",Duration=4})
+        else Rayfield:Notify({Title="Rayfield Hub",Content="Hammer inválido.",Duration=4}) end
+    end,
+})
